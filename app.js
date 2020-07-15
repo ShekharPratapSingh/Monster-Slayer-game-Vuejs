@@ -3,7 +3,8 @@ new Vue({
     data: {
         playerHealth: 100,
         monsterHealth: 100,
-        gameIsRunning:false
+        gameIsRunning: false,
+        turns: []
     },
     methods: {
         startGame: function () {
@@ -15,14 +16,14 @@ new Vue({
             
             var damage = this.calculateDamage(3,10);
             this.monsterHealth -= damage;
+            this.turns.unshift({
+                isPlayer: true,
+                text: 'Player hits monster' + damage
+            })
             if (this.checkWin()) {
                 return;
             }
-
-          
-            var damage = this.calculateDamage(5,12);
-            this.playerHealth -= damage;
-            this.checkWin();
+            this.monsterAttack()
            
         },
         specialAttack: function () {
@@ -33,14 +34,24 @@ new Vue({
             this.monsterAttack();
         },
         Heal: function () {
-            
+            if (this.playerHealth <= 90) {
+                this.playerHealth += 10;
+            } else {
+                this.playerHealth = 100;
+            }
+            this.monsterAttack();
         },
         giveUp: function () {
-            
+            this.gameIsRunning = false;
         },
 
         monsterAttack: function () {
-            this.playerHealth -= this.calculateDamage(5, 12)
+            var damage= this.calculateDamage(5, 12)
+            this.playerHealth -= damage;
+            this.turns.unshift({
+                isPlayer: true,
+                text: 'monster hits player' + damage
+            })
             this.checkWin()
         },
 
@@ -48,7 +59,6 @@ new Vue({
             return  Math.max(Math.floor(Math.random() * max) + 1, min);
         },
         checkWin: function () {
-            if (this.monsterHealth <= 0) {
                 if (this.monsterHealth <= 0) {
                     if (confirm('you Won! New Game?')) {
                         this.startGame();
@@ -67,8 +77,4 @@ new Vue({
                 return false;
             }
         }
-       
-
-
-    }
 })
